@@ -66,14 +66,23 @@ AMP_try2Character::AMP_try2Character()
 	ProjectileTarget->SetupAttachment(RootComponent);
 
 	bReplicates = true;
+
+	UE_LOG(LogTemp, Log, TEXT("init"));
+	myDebugUpdate.AddDynamic(this, &AMP_try2Character::OnDebugUpdate);
+}
+
+void AMP_try2Character::OnDebugUpdate(float value)
+{
+	//UE_LOG(LogTemp, Log, TEXT("update"));
 }
 
 void AMP_try2Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (ShotsCounter > 0)
-		UE_LOG(LogTemp, Log, TEXT("ShotsCounter %i"), ShotsCounter);
+	// if (ShotsCounter > 0)
+	// 	UE_LOG(LogTemp, Log, TEXT("ShotsCounter %i"), ShotsCounter);
+	myDebugUpdate.Broadcast(0);
 }
 
 
@@ -156,7 +165,8 @@ void AMP_try2Character::OnHealthUpdate()
 	//Client-specific functionality
 	if (IsLocallyControlled())
 	{
-		FString healthMessage = FString::Printf(TEXT("IsLocallyControlled You now have %f health remaining."), CurrentHealth);
+		FString healthMessage = FString::Printf(
+			TEXT("IsLocallyControlled You now have %f health remaining."), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 
 		if (CurrentHealth <= 0)
@@ -275,7 +285,7 @@ void AMP_try2Character::HandleFire_Implementation()
 	if (ProjectileBP)
 	{
 		ShotsCounter++;
-		
+
 		AThirdPersonMPProjectile* spawnedProjectile = GetWorld()->SpawnActor<AThirdPersonMPProjectile>(
 			ProjectileBP, spawnLocation, spawnRotation, spawnParameters);
 	}

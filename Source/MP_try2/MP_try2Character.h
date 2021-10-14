@@ -7,6 +7,8 @@
 #include "ThirdPersonMPProjectile.h"
 #include "MP_try2Character.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDebugUpdate, float, value);
+
 UCLASS(config=Game)
 class AMP_try2Character : public ACharacter
 {
@@ -23,6 +25,7 @@ class AMP_try2Character : public ACharacter
 	UPROPERTY(EditDefaultsOnly,Category="Projectile")
 	TSubclassOf<AThirdPersonMPProjectile> ProjectileBP;
 
+	FDebugUpdate myDebugUpdate;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile")
 	class USceneComponent* ProjectileTarget;
@@ -33,6 +36,9 @@ public:
 public:
 	AMP_try2Character();
 
+	UFUNCTION()
+	void OnDebugUpdate(float value);
+	
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Property replication */
