@@ -80,6 +80,8 @@ void AMP_try2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 void AMP_try2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SetupPlayerInputComponent: %s"), *GetName()));
+
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -194,6 +196,7 @@ void AMP_try2Character::LookUpAtRate(float Rate)
 
 void AMP_try2Character::MoveForward(float Value)
 {
+
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -223,7 +226,7 @@ void AMP_try2Character::MoveRight(float Value)
 
 void AMP_try2Character::StartFire()
 {	
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("StartFire: %s"), *GetName()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("StartFire: %s"), *GetName()));
 
 	if (!bIsFiringWeapon)
 	{
@@ -241,7 +244,7 @@ void AMP_try2Character::StopFire()
 
 void AMP_try2Character::HandleFire_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("HandleFire_Implementation: %s"), *GetName()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("HandleFire_Implementation: %s"), *GetName()));
 	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() *
 		50.0f);
 	FRotator spawnRotation = GetControlRotation();
