@@ -79,7 +79,7 @@ void AThirdPersonMPProjectile::BeginPlay()
 
 		if (FoundCharacters.Num() > 1)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("projectile: %s"), *GetName()));
+			//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("projectile: %s"), *GetName()));
 			const float Dist0 = FVector::Distance(GetActorLocation(), FoundCharacters[0]->GetActorLocation());
 			const float Dist1 = FVector::Distance(GetActorLocation(), FoundCharacters[1]->GetActorLocation());
 			AActor* FurtherCharacter =  Dist0 > Dist1 ? FoundCharacters[0] : FoundCharacters[1];

@@ -64,6 +64,25 @@ AMP_try2Character::AMP_try2Character()
 
 	ProjectileTarget = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileTarget"));
 	ProjectileTarget->SetupAttachment(RootComponent);
+
+	bReplicates = true;
+
+	UE_LOG(LogTemp, Log, TEXT("init"));
+	myDebugUpdate.AddDynamic(this, &AMP_try2Character::OnDebugUpdate);
+}
+
+void AMP_try2Character::OnDebugUpdate(float value)
+{
+	//UE_LOG(LogTemp, Log, TEXT("update"));
+}
+
+void AMP_try2Character::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// if (ShotsCounter > 0)
+	// 	UE_LOG(LogTemp, Log, TEXT("ShotsCounter %i"), ShotsCounter);
+	myDebugUpdate.Broadcast(0);
 }
 
 
@@ -73,6 +92,7 @@ void AMP_try2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	//Replicate current health.
 	DOREPLIFETIME(AMP_try2Character, CurrentHealth);
+	DOREPLIFETIME(AMP_try2Character, ShotsCounter);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,6 +100,8 @@ void AMP_try2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 void AMP_try2Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("SetupPlayerInputComponent: %s"), *GetName()));
+
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -117,7 +139,7 @@ void AMP_try2Character::SetCurrentHealth(float healthValue)
 }
 
 float AMP_try2Character::TakeDamage(float DamageTaken, FDamageEvent const& DamageEvent, AController* EventInstigator,
-                                   AActor* DamageCauser)
+                                    AActor* DamageCauser)
 {
 	float damageApplied = CurrentHealth - DamageTaken;
 	SetCurrentHealth(damageApplied);
@@ -127,7 +149,15 @@ float AMP_try2Character::TakeDamage(float DamageTaken, FDamageEvent const& Damag
 
 void AMP_try2Character::OnRep_CurrentHealth()
 {
+	FString msg = FString::Printf(TEXT("OnRep_CurrentHealth %i."), CurrentHealth);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, msg);
 	OnHealthUpdate();
+}
+
+void AMP_try2Character::OnRep_ShotsCounter()
+{
+	FString msg = FString::Printf(TEXT("OnRep_ShotsCounter %d."), ShotsCounter);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, msg);
 }
 
 void AMP_try2Character::OnHealthUpdate()
@@ -135,7 +165,8 @@ void AMP_try2Character::OnHealthUpdate()
 	//Client-specific functionality
 	if (IsLocallyControlled())
 	{
-		FString healthMessage = FString::Printf(TEXT("You now have %f health remaining."), CurrentHealth);
+		FString healthMessage = FString::Printf(
+			TEXT("IsLocallyControlled You now have %f health remaining."), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 
 		if (CurrentHealth <= 0)
@@ -149,7 +180,7 @@ void AMP_try2Character::OnHealthUpdate()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		FString healthMessage = FString::Printf(
-			TEXT("%s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
+			TEXT("ROLE_Authority %s now has %f health remaining."), *GetFName().ToString(), CurrentHealth);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, healthMessage);
 	}
 
@@ -222,8 +253,8 @@ void AMP_try2Character::MoveRight(float Value)
 }
 
 void AMP_try2Character::StartFire()
-{	
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("StartFire: %s"), *GetName()));
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("StartFire: %s"), *GetName()));
 
 	if (!bIsFiringWeapon)
 	{
@@ -241,7 +272,7 @@ void AMP_try2Character::StopFire()
 
 void AMP_try2Character::HandleFire_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("HandleFire_Implementation: %s"), *GetName()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("HandleFire_Implementation: %s"), *GetName()));
 	FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 100.0f) + (GetActorUpVector() *
 		50.0f);
 	FRotator spawnRotation = GetControlRotation();
@@ -253,6 +284,8 @@ void AMP_try2Character::HandleFire_Implementation()
 	//AThirdPersonMPProjectile* spawnedProjectile = GetWorld()->SpawnActor<AThirdPersonMPProjectile>(spawnLocation, spawnRotation, spawnParameters);
 	if (ProjectileBP)
 	{
+		ShotsCounter++;
+
 		AThirdPersonMPProjectile* spawnedProjectile = GetWorld()->SpawnActor<AThirdPersonMPProjectile>(
 			ProjectileBP, spawnLocation, spawnRotation, spawnParameters);
 	}
